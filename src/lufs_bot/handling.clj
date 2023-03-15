@@ -127,8 +127,6 @@
     #_(telegram/send-message 
           config
           (get-in message [:chat :id])
-          "Файл должен быть меньше 20-ти мегабайт"))
-  
-  (shutdown-agents))
+          "Файл должен быть меньше 20-ти мегабайт")))
 
 
