@@ -23,6 +23,7 @@
   
   (let [config 
         { :test-server false
+          :local-server "http://95.142.47.99:9955"
           :token my-token
           :polling {:update-timeout 1000}}]
   (polling/run-polling config)
@@ -39,12 +40,15 @@
      (-main "...:..."))
   
   
-    (-main "...:...")
+    (-main "...")
   
   (def CONFIG
-    {:token "...:..."
-     :test-server false})
- 
-  
+    {:token "..."
+     :local-server "..."})
+
+  (:file_path
+    (telegram/get-file
+    CONFIG
+    "..."))
   
   )

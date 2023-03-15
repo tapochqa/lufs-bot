@@ -46,13 +46,13 @@
     
     (and 
       (some? (:audio message))
-      (> 20000000 (get-in message [:audio :file_size])))
+      #_(> 20000000 (get-in message [:audio :file_size])))
     (let [file
         (->
           (telegram/get-file 
           config
           (get-in message [:audio :file_id]))
-          :url
+          :file_path
           (copy "temp"))
         
         
@@ -123,12 +123,12 @@
           (get-in message [:chat :id])
           "Пришлите аудио, и я посчитаю его громкость")
     
-    (<= 20000000 (get-in message [:audio :file_size]))
-    (telegram/send-message 
+    #_(<= 20000000 (get-in message [:audio :file_size]))
+    #_(telegram/send-message 
           config
           (get-in message [:chat :id])
           "Файл должен быть меньше 20-ти мегабайт"))
-
-  )
+  
+  (shutdown-agents))
 
 
