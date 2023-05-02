@@ -41,7 +41,8 @@
     (re-find #"Peak:\s*[-+]?[0-9]*(\.[0-9]+)*\ dBFS")
     first
     (re-find #"[+-]?([0-9]*[.])?[0-9]+")
-    first))
+    first
+    parse-double))
 
 
 (def LOADING "⏳")
