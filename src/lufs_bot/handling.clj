@@ -2,7 +2,46 @@
   (:require
     [tg-bot-api.telegram :as telegram]
     [clojure.java.io :as io]
-    [lufs-clj.core :as lufs]))
+    [lufs-clj.core :as lufs]
+    [me.raynes.conch :as conch]))
+
+
+(defn regex-file-seq
+  "Lazily filter a directory based on a regex."
+  [re dir]
+  (filter #(re-find re (.getPath %)) (file-seq dir)))
+
+
+(defn slurp-delete
+  [path]
+  
+  (let [res (slurp path)]
+    
+    (clojure.java.io/delete-file path)
+    res))
+
+(defn true-peak
+  "measures true peak using ffmpeg
+   will fix later"
+  [filename]
+  
+  (conch/with-programs [ffmpeg]
+    
+    (ffmpeg 
+      "-nostats"
+      "-i" filename
+      "-filter_complex" "ebur128=peak=true"
+      "-f" "null"
+      "-loglevel" "panic"
+      "-report"
+      "-"))
+  (->> (regex-file-seq #"ffmpeg" (clojure.java.io/file "."))
+    first
+    slurp-delete
+    (re-find #"Peak:\s*[-+]?[0-9]*(\.[0-9]+)*\ dBFS")
+    first
+    (re-find #"[+-]?([0-9]*[.])?[0-9]+")
+    first))
 
 
 (def LOADING "⏳")
@@ -108,6 +147,14 @@
         
         edited-message
         (edit (parse-lufses lufses))
+          
+        lufses
+        (assoc lufses
+          :True-Peak
+          (true-peak file))
+        
+        edited-message
+        (edit (parse-lufses lufses))
         
         lufses
         (dissoc lufses LOADING)
@@ -128,5 +175,31 @@
           config
           (get-in message [:chat :id])
           "Файл должен быть меньше 20-ти мегабайт")))
+
+
+
+
+
+
+
+
+
+(comment
+  
+  
+
+  
+  
+  
+  
+  )
+
+
+
+
+
+
+
+
 
 

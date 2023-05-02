@@ -40,7 +40,7 @@
      (-main "...:..."))
   
   
-    (-main "...")
+    (-main (slurp "token"))
   
   (def CONFIG
     {:token "..."
