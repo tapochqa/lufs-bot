@@ -19,11 +19,11 @@
       (lambda/response->)))
 
 (defn -main
-  [my-token]
+  [my-token local-uri]
   
   (let [config 
         { :test-server false
-          :local-server "http://95.142.47.99:9955"
+          :local-server local-uri
           :token my-token
           :polling {:update-timeout 1000}}]
   (polling/run-polling config)

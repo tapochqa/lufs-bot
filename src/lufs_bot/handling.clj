@@ -6,6 +6,17 @@
     [me.raynes.conch :as conch]))
 
 
+(defmacro with-safe-log
+  "
+  A macro to wrap Telegram calls (prevent the whole program from crushing).
+  "
+  [& body]
+  `(try
+     ~@body
+     (catch Throwable e#
+       (println (ex-message e#)))))
+
+
 (defn regex-file-seq
   "Lazily filter a directory based on a regex."
   [re dir]
@@ -89,9 +100,10 @@
       #_(> 20000000 (get-in message [:audio :file_size])))
     (let [file
         (->
-          (telegram/get-file 
-          config
-          (get-in message [:audio :file_id]))
+          (with-safe-log
+            (telegram/get-file 
+            config
+            (get-in message [:audio :file_id])))
           :file_path
           (copy "temp"))
         
@@ -101,21 +113,23 @@
         
         
         sent-message
-        (telegram/send-message 
-          config
-          (get-in message [:chat :id])
-          (parse-lufses lufses)
-          {:parse-mode "markdown"
-           :reply-to-message-id (:message_id message)})
+        (with-safe-log
+          (telegram/send-message 
+            config
+            (get-in message [:chat :id])
+            (parse-lufses lufses)
+            {:parse-mode "markdown"
+             :reply-to-message-id (:message_id message)}))
         
         edit
         (fn [m]
-          (telegram/edit-message-text
-           config
-           (get-in message [:chat :id])
-           (:message_id sent-message)
-           m
-           {:parse-mode "markdown"}))
+          (with-safe-log
+            (telegram/edit-message-text
+             config
+             (get-in message [:chat :id])
+             (:message_id sent-message)
+             m
+             {:parse-mode "markdown"})))
         
         lufses
         (assoc lufses 
@@ -166,10 +180,11 @@
     
     
     (nil? (:audio message))
-    (telegram/send-message 
-          config
-          (get-in message [:chat :id])
-          "Пришлите аудио, и я посчитаю его громкость")
+    (with-safe-log
+      (telegram/send-message
+            config
+            (get-in message [:chat :id])
+            "Пришлите аудио, и я посчитаю его громкость"))
     
     #_(<= 20000000 (get-in message [:audio :file_size]))
     #_(telegram/send-message 
